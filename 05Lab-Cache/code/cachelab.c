@@ -159,6 +159,13 @@ Line_T* getLRULine(Set_T set, unsigned int E) {
     return LRULinePtr;
 }
 
+void dealTime(Line_T* LineArray, unsigned int E) {
+    for (size_t i = 0; i < E; i++) {
+        Line_T* linePtr = LineArray + i;
+        linePtr->time+=1;
+    }
+}
+
 unsigned memoryAccesses(Cache_T cache, unsigned long address) {
     Set_T set = getSet(cache, address);
     // printf("Set: Tag", set.LineArray[0].Tag, set.LineArray[1].Tag);
@@ -169,7 +176,8 @@ unsigned memoryAccesses(Cache_T cache, unsigned long address) {
         if (linePtr->valid == 1) {
             validCount += 1;
             if (linePtr->Tag == Tag) {
-                linePtr->time = time(NULL);
+                dealTime(set.LineArray, cache.E);
+                linePtr->time = 0;
                 return 0;
             }
         }
@@ -178,6 +186,12 @@ unsigned memoryAccesses(Cache_T cache, unsigned long address) {
     Line_T* linePtr;
     if (validCount == cache.E) {
         linePtr = getLRULine(set, cache.E);
+        if (address == 0x7ff000384) {
+            for (size_t k = 0; k < cache.E; k++)
+            {
+                printf("timer: %lx, tag: %d\n", set.LineArray[k].time, set.LineArray[k].Tag);
+            }
+        }
         missFlag = 1;
     } else {
         linePtr = getUnuseLine(set, cache.E);
@@ -185,9 +199,12 @@ unsigned memoryAccesses(Cache_T cache, unsigned long address) {
     }
     linePtr->Tag = Tag;
     linePtr->valid = 1;
-    linePtr->time = time(NULL);
+    dealTime(set.LineArray, cache.E);
+    linePtr->time = 0;
     return missFlag;
-} 
+}
+
+
 
 void dealOperM(Cache_T cache, Denote_T denote, Info_t* infoPtr) {
     unsigned int flag = memoryAccesses(cache, denote.address);
@@ -228,15 +245,13 @@ void dealOperLOrS(Cache_T cache, Denote_T denote, Info_t* infoPtr) {
 }
 
 
-
-
 void dealCommand(Cache_T cache, Denote_T denote, Info_t* infoPtr)
 {
 
     if (denote.size > getB(cache.b)) {
         infoPtr->num_misses+=1;
-        printf("%s miss\n", denote.description);
-        return; 
+        printf("%c %lx,%d miss\n", denote.operation, denote.address, denote.size); 
+        return;
     }
 
     switch (denote.operation) {

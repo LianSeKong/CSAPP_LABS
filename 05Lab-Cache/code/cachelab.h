@@ -27,7 +27,7 @@ typedef struct Line {
   void* CacheBlock;     // block 
   unsigned int valid;  // 1: valid, 0: invalid 
   unsigned int Tag;    // Check for equality
-  unsigned int time; // LRU 
+  unsigned long time; // LRU 
 } Line_T;
 
 typedef struct Set

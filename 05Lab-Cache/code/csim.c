@@ -50,34 +50,11 @@ int main(int argc, char *argv[])
         sscanf(address, "%lx", &(denote.address));
         denote.size = size;
         denote.description = buff;
-        // printf("address1: %s, address2: %lx\n", address, denote.address);
         dealCommand(cache, denote, &info);
       }
   };
-
   printSummary(info.num_hits, info.num_misses, info.num_evictions);
   return 0;
 }
 
-
-/** E   LINE
- * 
- *  0   
- *  1   10,18:2 110:1
- *  2   x _
- *  
- * 
- * 
- * 
- *  16
- *      s    b
- * 0000 0001 0000  L 10,1 miss 
- * 0000 0010 0000  M 20,1 miss hit 
- * 0000 0010 0002  L 22,1 hit 
- * 0000 0001 1000  S 18,1 hit  
- * 0001 0001 0000  L 110,1 miss  
- * 0010 0001 0000  L 210,1 miss eviction 
- * 0000 0001 0010  M 12,1 miss eviction hit
- * 
-*/
 
